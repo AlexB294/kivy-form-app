@@ -28,6 +28,11 @@ jobs:
           unzip cmdline-tools.zip -d $HOME/android-sdk/cmdline-tools/latest
           yes | $HOME/android-sdk/cmdline-tools/latest/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android-sdk "build-tools;34.0.0" "platform-tools"
           echo "export PATH=$HOME/android-sdk/build-tools/34.0.0:$PATH" >> $GITHUB_ENV
+          - name: Fix sdkmanager path for Buildozer
+            run: |
+              mkdir -p $HOME/.buildozer/android/platform/android-sdk/tools/bin
+              ln -sf $HOME/android-sdk/cmdline-tools/latest/cmdline-tools/bin/sdkmanager $HOME/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
+         
 
       - name: Symlink build-tools for Buildozer
         run: |
