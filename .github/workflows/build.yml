@@ -27,7 +27,7 @@ jobs:
           unzip cmdline-tools.zip -d $HOME/android-sdk
           mkdir -p $HOME/android-sdk/tools
           mv $HOME/android-sdk/cmdline-tools/* $HOME/android-sdk/tools/
-          yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android-sdk "build-tools;34.0.0" "platform-tools"
+          yes | $HOME/android-sdk/tools/bin/sdkmanager --sdk_root=$HOME/android-sdk "build-tools;34.0.0" "platform-tools"
           echo "export PATH=$HOME/android-sdk/build-tools/34.0.0:$PATH" >> $GITHUB_ENV
 
       - name: Symlink build-tools for Buildozer
