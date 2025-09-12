@@ -40,6 +40,13 @@ jobs:
       run: |
         yes | /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
 
+    - name: Install required SDK packages
+      run: |
+        /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager --install \
+          "platforms;android-33" \
+          "platform-tools" \
+          "build-tools;33.0.2"
+
     - name: Install buildozer
       run: |
         pip install --upgrade pip
