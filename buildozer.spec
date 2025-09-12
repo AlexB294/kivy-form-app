@@ -49,7 +49,7 @@ android.ndk = 25b
 android.ndk_api = 21
 
 # (str) Architectures to build for
-android.arch = arm64-v8a, armeabi-v7a
+android.archs = arm64-v8a, armeabi-v7a
 
 # (str) Application entry point
 entrypoint = main.py
