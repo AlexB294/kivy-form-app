@@ -32,7 +32,12 @@ requirements = python3,kivy,pyjnius,reportlab
 
 # (bool) Indicate if the application should be fullscreen or not
 fullscreen = 0
-
+android.api = 33
+android.minapi = 21
+android.sdk = 33
+android.ndk = 25b
+android.ndk_api = 21
+android.build_tools_version = 33.0.2
 # (list) Permissions your app needs
 android.permissions = WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE
 
