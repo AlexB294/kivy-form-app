@@ -29,6 +29,13 @@ jobs:
         echo "export PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$PATH" >> $GITHUB_ENV
         echo "export PATH=$HOME/android-sdk/platform-tools:$PATH" >> $GITHUB_ENV
 
+    - name: Symlink sdkmanager for Buildozer
+      run: |
+        mkdir -p $HOME/.buildozer/android/platform/android-sdk/tools/bin
+        ln -s $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager \
+              $HOME/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
+
+
     - name: Install buildozer
       run: |
         pip install --upgrade pip
