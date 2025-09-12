@@ -26,8 +26,9 @@ jobs:
           wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip -O cmdline-tools.zip
           mkdir -p $HOME/android-sdk/cmdline-tools/latest
           unzip cmdline-tools.zip -d $HOME/android-sdk/cmdline-tools/latest
-          yes | $HOME/android-sdk/cmdline-tools/latest/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android-sdk "build-tools;34.0.0" "platform-tools"
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk "build-tools;34.0.0" "platform-tools"
           echo "export PATH=$HOME/android-sdk/build-tools/34.0.0:$PATH" >> $GITHUB_ENV
+
 
       - name: Fix sdkmanager path for Buildozer
         run: |
