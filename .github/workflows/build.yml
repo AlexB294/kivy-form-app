@@ -1,51 +1,45 @@
-name: Build APK
+name: Build Android APK
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
+    - name: Install system dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y git zip unzip openjdk-17-jdk python3 python3-pip python3-setuptools python3-venv wget
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install buildozer cython
+    - name: Install Android SDK cmdline-tools
+      run: |
+        mkdir -p $HOME/android-sdk/cmdline-tools
+        cd $HOME/android-sdk/cmdline-tools
+        wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
+        unzip -q cmdline-tools.zip
+        mv cmdline-tools latest
+        rm cmdline-tools.zip
+        echo "export ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
+        echo "export PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$PATH" >> $GITHUB_ENV
+        echo "export PATH=$HOME/android-sdk/platform-tools:$PATH" >> $GITHUB_ENV
 
-      - name: Install Android SDK Build-Tools
-        run: |
-          sudo apt-get install -y wget unzip
-          wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip -O cmdline-tools.zip
-          mkdir -p $HOME/android-sdk/cmdline-tools
-          unzip cmdline-tools.zip -d $HOME/android-sdk/cmdline-tools
-          mv $HOME/android-sdk/cmdline-tools/cmdline-tools $HOME/android-sdk/cmdline-tools/latest
-          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk "build-tools;34.0.0" "platform-tools"
-          echo "export PATH=$HOME/android-sdk/build-tools/34.0.0:$PATH" >> $GITHUB_ENV
-          
-      - name: Symlink sdkmanager for Buildozer
-        run: |
-          mkdir -p $HOME/.buildozer/android/platform/android-sdk/tools/bin
-          ln -s $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager $HOME/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
+    - name: Install buildozer
+      run: |
+        pip install --upgrade pip
+        pip install buildozer cython virtualenv
 
+    - name: Build APK
+      run: |
+        buildozer -v android debug
 
-
-      - name: Fix sdkmanager path for Buildozer
-        run: |
-          mkdir -p $HOME/.buildozer/android/platform/android-sdk/tools/bin
-          ln -sf $HOME/android-sdk/cmdline-tools/latest/cmdline-tools/bin/sdkmanager $HOME/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
-
-      - name: Symlink build-tools for Buildozer
-        run: |
-          mkdir -p $HOME/.buildozer/android/platform/android-sdk
-          ln -s $HOME/android-sdk/build-tools $HOME/.buildozer/android/platform/android-sdk/build-tools
-
-      - name: Build APK
-        run: buildozer android debug
+    - name: Upload APK artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: FormApp-APK
+        path: bin/*.apk
