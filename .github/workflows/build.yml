@@ -36,6 +36,10 @@ jobs:
         sudo rm ndk.zip
         echo "export ANDROID_NDK_HOME=/opt/android-ndk" >> $GITHUB_ENV
 
+    - name: Accept Android SDK licenses
+      run: |
+        yes | /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
+
     - name: Install buildozer
       run: |
         pip install --upgrade pip
