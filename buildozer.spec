@@ -24,37 +24,23 @@ orientation = portrait
 # (list) Application requirements
 requirements = python3,kivy,pyjnius,reportlab
 
-# (str) Presplash of the application
-# presplash.filename = %(source.dir)s/data/presplash.png
-
-# (str) Icon of the application
-# icon.filename = %(source.dir)s/data/icon.png
-
 # (bool) Indicate if the application should be fullscreen or not
 fullscreen = 0
+
+# --- ANDROID CONFIGURATION ---
+# API / SDK / NDK versions
 android.api = 33
 android.minapi = 21
 android.sdk = 33
 android.ndk = 25b
 android.ndk_api = 21
 android.build_tools_version = 33.0.2
+
+# (list) Architectures to build for
+android.arch = arm64-v8a, armeabi-v7a
+
 # (list) Permissions your app needs
 android.permissions = WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE
-
-# (int) Target API level
-android.api = 33
-
-# (int) Minimum API your APK will support
-android.minapi = 21
-
-# (str) Android NDK version to use
-android.ndk = 25b
-
-# (int) Android NDK API
-android.ndk_api = 21
-
-# (str) Architectures to build for
-android.archs = arm64-v8a, armeabi-v7a
 
 # (str) Application entry point
 entrypoint = main.py
