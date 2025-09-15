@@ -1,5 +1,8 @@
 [app]
 
+requirements = python3,kivy,pyjnius,reportlab,libffi
+p4a.local_recipes = recipes
+
 # (str) Title of your application
 title = Formular Montaj
 
