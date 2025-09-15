@@ -48,6 +48,9 @@ entrypoint = main.py
 # (str) Package format (aab or apk)
 package.format = apk
 
+# Force SDK/NDK paths (so it won't use .buildozer folder)
+android.sdk_path = /opt/android-sdk
+android.ndk_path = /opt/android-ndk
 
 [buildozer]
 
