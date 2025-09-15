@@ -15,9 +15,11 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt update
-        sudo apt install -y \ 
+        sudo apt install -y \
           git zip unzip openjdk-17-jdk python3 python3-pip python3-setuptools python3-venv wget \
-          autoconf automake libtool pkg-config  # 👈 added here
+          autoconf automake autopoint libtool pkg-config m4 make cmake \
+          gperf libffi-dev libltdl-dev
+
 
     - name: Install Android SDK
       run: |
