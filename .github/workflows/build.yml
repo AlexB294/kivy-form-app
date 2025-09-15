@@ -15,9 +15,8 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt update
-        sudo apt install -y \
-          git zip unzip openjdk-17-jdk python3 python3-pip python3-setuptools python3-venv wget
-          autoconf automake libtool pkg-config
+        sudo apt install -y git zip unzip openjdk-17-jdk python3 python3-pip python3-setuptools python3-venv wget \
+          autoconf automake libtool pkg-config   # 👈 added here
 
     - name: Install Android SDK
       run: |
@@ -29,13 +28,12 @@ jobs:
         sudo rm cmdline-tools.zip
         echo "export ANDROID_SDK_ROOT=/opt/android-sdk" >> $GITHUB_ENV
         echo "export PATH=/opt/android-sdk/cmdline-tools/latest/bin:/opt/android-sdk/platform-tools:$PATH" >> $GITHUB_ENV
-    
+
     - name: Fix sdkmanager path for buildozer
       run: |
         mkdir -p /opt/android-sdk/tools/bin
         ln -sf /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager /opt/android-sdk/tools/bin/sdkmanager
 
-    
     - name: Install Android NDK
       run: |
         sudo wget https://dl.google.com/android/repository/android-ndk-r25b-linux.zip -O ndk.zip
