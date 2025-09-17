@@ -57,8 +57,8 @@ jobs:
 
     - name: Install buildozer
       run: |
-        pip install --upgrade pip
-        pip install buildozer cython virtualenv
+        pip3 install --upgrade pip
+        pip3 install buildozer cython virtualenv
 
     - name: Build APK
       run: |
