@@ -2,7 +2,9 @@ import os, datetime, smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 from email.mime.text import MIMEText
-
+import requests
+import base64
+import msal 
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
@@ -24,8 +26,24 @@ try:
     ANDROID = True
 except ImportError:
     ANDROID = False
+from kivy.uix.popup import Popup
+from kivy.uix.label import Label
 
+client_id = "c65a86ef-c2c1-4fa7-8d23-f7bd26eacf79"
+tenant_id = "1b4f6890-7d22-4701-b4c7-dbee8d2a3594"
+authority = f"https://login.microsoftonline.com/{tenant_id}"
 
+# Create MSAL app globally
+app = msal.PublicClientApplication(client_id=client_id, authority=authority)
+
+# Acquire token once and keep it (but don't send email yet!)
+result = app.acquire_token_interactive(scopes=["Mail.Send"])
+
+if "access_token" in result:
+    access_token = result["access_token"]
+else:
+    print("❌ Could not acquire token:", result.get("error_description"))
+    access_token = None
 
 
 # ------------------------
@@ -33,17 +51,119 @@ except ImportError:
 # ------------------------
 
 PRODUCTS = {
-    "Invertor": {
-        "ADC000005": "Inverter, maximum 3.3KVA AC output",
-        "ADC000006": "Inverter, maximum 4.4KVA AC output",
+    "Invertor(single-phase)": {
+        "ADC000005": "Inverter, maximum 3.3KVA AC output,SUN2000-3KTL-L1",
+        "ADC000006": "Inverter, maximum 4.4KVA AC output,SUN2000-4KTL-L1",
+        "ADC000007": "SUN2000-5KTL-L1,Inverter, maximum 5.5KVA AC output",
+        "ADC000008": "SUN2000-6KTL-L1 Inverter, maximum 6.6KVA AC output",
+        "ADC000009": "SUN2000-8KTL-LC0 Inverter, maximum 8.8KVA AC output",
+        "ADC000010": "SUN2000-10KTL-LC0, Inverter, maximum 11KVA AC output"
     },
-    "Baterie": {
-        "ADC000083": "Power Module",
-        "ADC000084": "Battery Module",
+        "Invertor(three-phase)": {
+        "ADC000011": "SUN2000-3KTL-M1HC , Inverter, maximum 3.3KVA AC output",
+        "ADC000012": "SUN2000-4KTL-M1HC , Inverter, maximum 4.4KVA AC output",
+        "ADC000013": "SUN2000-5KTL-M1HC  Inverter, maximum 5.5KVA AC output",
+        "ADC000011": "SUN2000-6KTL-M1HC  Inverter, maximum 6.6KVA AC output",
+        "ADC000015": "SUN2000-8KTL-M1HC  Inverter, maximum 8.8KVA AC output",
+        "ADC000016": "SUN2000-10KTL-M1HC Inverter, maximum 11KVA AC output",
+        "ADC000017": "SUN2000-12KTL-M5 HC Inverter, maximum 13.2KVA AC output",
+        "ADC000018": "SUN2000-15KTL-M5 HC Inverter, maximum 16.5KVA AC output",
+        "ADC000019": "SUN2000-17KTL-M5 HC Inverter, maximum 18.7KVA AC output",
+        "ADC000022": "SUN2000-30KTL-M3 Inverter, maximum 33.0KVA AC output",
+        "ADC000023": "SUN2000-36KTL-M3 Inverter, maximum 40.0KVA AC output",
+        "ADC000024": "SUN2000-40KTL-M3 Inverter, maximum 44.0KVA AC output",
+        "ADC000025": "SUN2000-50KTL-M3 Inverter, maximum 55.0KVA AC output",
+        "ADC000026": "SUN2000-100KTL-M2-AFCI Inverter, maximum 110.0KVA AC output",
+        "ADC000027": "SUN2000-115KTL-M2 (115 kW) Inverter, maximum 125.0KVA AC output",
+        "ADC000028": "SUN2000-150KTL-MG0 (150 kW) Inverter, maximum 165.0KVA AC output",
+        "ADC000029": "SUN2000-185KTL-H1 (185 kW) Huawei three-phase inverter SUN2000-185KTL-H1",
+        "ADC000030": "SUN2000-215KTL-H0 (215 kW) Huawei three-phase inverter SUN2000-215KTL-H0",
+        "ADC000031": "SUN2000-215KTL-H1 (215 kW) Huawei three-phase inverter SUN2000-215KTL-H1",
+        "ADC000032": "SUN2000-330KTL-H1 Huawei three-phase inverter SUN2000-330KTL-H1",
+        "ADC000033": "SUN2000-12K-MB0 Inverter, Hybrid , maximum 13.2KVA AC output",
+        "ADC000034": "SUN2000-15K-MB0 Inverter, Hybrid , maximum 16.5KVA AC output",
+        "ADC000035": "SUN2000-17K-MB0 Inverter, Hybrid, maximum 18.7KVA AC output",
+        "ADC000036": "SUN2000-20K-MB0 Inverter, Hybrid, maximum 22.0KVA AC output",
+        "ADC000037": "SUN2000-25K-MB0 Inverter, Hybrid, maximum 27.0KVA AC output",
+        "ADC000038": "SUN2000-5K-MAP0 Inverter on-grid hybrid, Asymetric Huawei SUN2000-5K-MAP0",
+        "ADC000039": "SUN2000-6K-MAP0 Inverter on-grid hybrid, Asymetric Huawei SUN2000-6K-MAP0",
+        "ADC000040": "SUN2000-8K-MAP0 Inverter on-grid hybrid, Asymetric Huawei SUN2000-8K-MAP0",
+        "ADC000041": "SUN2000-10K-MAP0 Inverter on-grid hybrid, Asymetric Huawei SUN2000-10K-MAP0",
+        "ADC000042": "SUN2000-12K-MAP0 (13,2 kW) Inverter on-grid hybrid, Asymetric Huawei SUN2000-12K-MAP0",
+        "ADC000043": "SUN5000-8K-MAP0 Inverter hybrid Asymetric Huawei SUN5000-8K-MAP0",
+        "ADC000044": "SUN5000-12K-MAP0 Inverter hybrid Asymetric Huawei SUN5000-12K-MAP0" 
     },
-    "Contor": {
-        "ADC000135": "DDSU666-H single-phase",
-        "ADC000136": "DTSU666-H three-phase 250A",
+    
+    "Smart Power Sensor": {
+        "ADC000135": "DDSU666-H Power meter, DDSU666-H, single-phase smart meter",
+        "ADC000136": "DTSU666-H 250A Power meter, DTSU666-H, three-phase smart meter 250A",
+        "ADC000137": "DTSU666-H 100A Power meter, DTSU666-H, three-phase smart meter 100A",
+        "ADC000138": "DTSU666-HW Power meter, DTSU666-H, three-phase smart meter",
+        "ADC000139": "DTSU666-FE Smart power Sensor"
+    },
+    "Accessories":{
+        "ADC000140": "EMMA-A02, EMMA-A02",
+        "ADC000141": "SmartGuard-63A-S0, SmartGuard-63A-S0",
+        "ADC000335": "SmartGuard-63A-T0, SmartGuard-63A-T0"
+    },
+    "Storage":{
+        "ADC000083": "LUNA2000-5-C0, Power Module",
+        "ADC000084": "LUNA2000-5-E0, Battery Module,",
+        "ADC000085": "Luna2000-5-S0, Storage KIT Luna 5 Kw",
+        "ADC000086": "Luna2000-10-S0, Storage KIT Luna 10 Kw",
+        "ADC000087": "Luna2000-15-S0, Storage KIT Luna 15 Kw",
+        "ADC000088": "Battery module LUNA2000-7-E1, Battery Module",
+        "ADC000089": "Power module LUNA2000-10KW-C1, Power Module",
+        "ADC000090": "Huawei LUNA2000-7-S1 ,Storage KIT Luna 7 Kw",
+        "ADC000091": "Huawei LUNA2000-14-S1 ,Storage KIT Luna 14 Kw",
+        "ADC000092": "Huawei LUNA2000-21-S1 ,Storage KIT Luna 21 Kw"
+    },
+    "Wall Mount":{
+        "ADC000142" "Luna2000 Wall Bracket, Battery Wall mounting bracket S0",
+        "ADC000143" "LUNA2000-S1 Wall Mounting Bracket, Battery Wall mounting bracket S1"
+    },
+    "Backup system(single-phase)":{
+        "ADC000144": "Back-up box-B0, Backup system"
+    },
+    "Backup system(three-phase)":{
+        "ADC000145": "Back-up box-B1, Backup system"
+    },
+    "Optimizer":{
+        "ADC000146": "SUN2000-450W-P2 Optimizer, 450W, compatible with L1 and M1/M2 inverters",
+        "ADC000147": "SUN2000-600W-P, HUAWEI Smart PV Optimizer SUN2000-600W-P",
+        "ADC000148": "1100W-P Short Cable Optimizer, Optimizator Huawei 1100W-P Smart Module Controller cablu scurt",
+        "ADC000149": "1100W-P Long Cable Optimizer, Optimizator Huawei 1100W-P Smart Module Controller cablu lung",
+        "ADC000150": "1300W-P Short Cable Optimizer, Optimizator Huawei 1300W-P Smart Module Controller cablu scurt",
+        "ADC000151": "1300W-P Long Cable Optimizer, Optimizator Huawei 1300W-P Smart Module Controller cablu lung"
+    },
+    "Smart Logger":{
+        "ADC000152": "SmartLogger3000A03EU (with MBUS), Smart logger communication for 80 devices at most with MBUS",
+        "ADC000153": "SmartLogger3000A01EU, Smart logger communication for 80 devices at most",
+        "ADC000154": "SmartLogger3000B, Smart logger communication for 150 devices at most"
+    },
+
+    "WiFi Dongle":{
+        "ADC000155": "SmartDongle WLAN-FE , WLAN-FE Dongle, communication for 10 devices at most"
+    },
+    "4G Dongle":{
+        "ADC000157": "SmartDongle 4G, External 4G antenna, communication for 10 devices at most"
+    },
+    "Analizor de putere":{
+        "ADC000158": "Power Analyser JANITZA UMG 103", 
+        "ADC000159": "Power Analyser JANITZA UMG 104"
+    },
+    "Silicon irradiance sensor":{
+        "ADC000311": "SM1-485PRO-SUNMETER PRO"
+    },
+    "PT100Temp":{
+        "ADC000280":" TM3-Temmer PT100 temperature*, PT100 temperature probe for PV modules withadhesive surface for adhesion to tedlar of PV modules.",        
+    },
+    "Anemometer":{
+        "ADC000281":"ANE-ANEMOMETER-Wind*, Windmeter - Digital Anemometer"
+    },
+    "Charging station":{
+        "ADC000185":"AC charger 1 Phase 7kW/32A, Charging station 1 Phase 7kW/32A", 
+        "ADC000186":"AC charger 3 Phase 22kW/32A, Charging station 3 Phase 22kW/32A" 
     }
 }
 
@@ -141,31 +261,6 @@ class FormRow(BoxLayout):
 
 
 
-    def send_email_with_attachment(pdf_path):
-        if not ANDROID:
-            print("⚠️ Email sending works only on Android device.")
-            return
-    
-        Intent = autoclass('android.content.Intent')
-        Uri = autoclass('android.net.Uri')
-        File = autoclass('java.io.File')
-
-        intent = Intent(Intent.ACTION_SEND)
-        intent.setType("application/pdf")
-        intent.putExtra(Intent.EXTRA_SUBJECT, "Formular Montaj")
-        intent.putExtra(Intent.EXTRA_TEXT,
-            "Bună ziua,\n\nAtașat găsiți formularul de montaj completat.\n\nCu respect,\nEchipa")
-
-        file = File(pdf_path)
-        uri = Uri.fromFile(file)
-        intent.putExtra(Intent.EXTRA_STREAM, cast('android.os.Parcelable', uri))
-
-        intent.putExtra(Intent.EXTRA_EMAIL, ["client@example.com"])
-
-        currentActivity = cast('android.app.Activity', activity._activity)
-        currentActivity.startActivity(intent)
-
-
 
 # ------------------------
 # Main App
@@ -210,6 +305,10 @@ class FormApp(App):
 
 # Buttons
         buttons = BoxLayout(size_hint_y=None, height=50)
+        
+        reset_btn = Button(text="🔄 Resetare form")
+        reset_btn.bind(on_release=self.reset_form)
+        buttons.add_widget(reset_btn)
 
         add_btn = Button(text="➕ Adauga rand")
         add_btn.bind(on_release=self.add_row)
@@ -220,12 +319,23 @@ class FormApp(App):
         buttons.add_widget(pdf_btn)
 
         email_btn = Button(text="✉️ Trimite Email")
-        email_btn.bind(on_release=self.send_email)
+        email_btn.bind(on_press=self.send_email)
         buttons.add_widget(email_btn)
 
         root.add_widget(buttons)
 
         return root
+    def reset_form(self, *args):
+        #Reset header inputs
+        self.client.text = ""
+        self.completed_by.text = ""
+        self.date_input.text = datetime.date.today().isoformat()
+        #Clear table rows
+        for row in self.rows:
+            self.table.remove_widget(row)
+        self.rows = []
+        print("🔄 Formular resetat!")
+
     def add_row(self, *args):
         row = FormRow()
         self.rows.append(row)
@@ -261,9 +371,24 @@ class FormApp(App):
 
         def draw_page_header():
             """Draw logo, title, and client info on every page."""
-            if os.path.exists("logo.png"):
-                c.drawImage("logo.png", 50, height - 100,
-                            width=120, height=50, preserveAspectRatio=True, mask="auto")
+            logo_path = os.path.join(os.path.dirname(__file__), "logo.png")
+            logo_width = 100
+            logo_height = 35
+            if os.path.exists(logo_path):
+                try:
+                    c.drawImage(
+                        logo_path,
+                        width - logo_width -40,
+                        height - logo_height -20,
+                        width=logo_width,
+                        height=logo_height,
+                        mask='auto'
+                    )
+                except Exception as e:
+                    print(f"⚠️ Could not draw logo: {e}")
+            else:
+                print(f"⚠️ Logo not found at {logo_path}")
+
             # Title
             c.setFont("Helvetica-Bold", 16)
             c.drawCentredString(width/2, height - 50, "FORMULAR MONTAJ")
@@ -324,39 +449,79 @@ class FormApp(App):
         self.last_pdf = filepath
         print(f"✅ PDF saved: {filepath}")
 
-
     def send_email(self, *args):
         if not hasattr(self, "last_pdf"):
-            print("⚠️ Please generate PDF first!")
+            popup = Popup(
+                title="⚠️ Atenție",
+                content=Label(text="Trebuie să generezi PDF-ul înainte de a trimite emailul."),
+                size_hint=(0.6, 0.3)
+            )
+            popup.open()
             return
 
-        sender = "alexandru.baican@adc.ro"
-        password = "lex@ndru308$bcn2004"
-        recipients = ["baicanalex568@gmail.com"]
+    # Authenticate only when user presses Send Email
+        result = app.acquire_token_interactive(scopes=["Mail.Send"])
+        if "access_token" not in result:
+            popup = Popup(
+                title="❌ Eroare autentificare",
+                content=Label(text="Nu am putut obține token-ul.\nVerifică login-ul Microsoft."),
+                size_hint=(0.6, 0.3)
+            )
+            popup.open()
+            return
 
-        msg = MIMEMultipart()
-        msg["From"] = sender
-        msg["To"] = ", ".join(recipients)
-        msg["Subject"] = "Formular Montaj Completat"
-        msg.attach(MIMEText("Bună ziua,\n\nAtașez formularul de montaj completat.\n\nCu respect,"))
+        access_token = result["access_token"]
 
+    # Read PDF content
         with open(self.last_pdf, "rb") as f:
-            part = MIMEApplication(f.read(), Name=os.path.basename(self.last_pdf))
-            part["Content-Disposition"] = f'attachment; filename="{os.path.basename(self.last_pdf)}"'
-            msg.attach(part)
+            file_content = base64.b64encode(f.read()).decode("utf-8")
 
-        try:
-        # Outlook SMTP
-            with smtplib.SMTP("smtp.office365.com", 587) as server:
-                server.ehlo()
-                server.starttls()  # important for Outlook
-                server.login(sender, password)
-                server.sendmail(sender, recipients, msg.as_string())
-            print("✅ Email sent via Outlook!")
-        except Exception as e:
-            print("❌ Email failed:", e)
+        endpoint = "https://graph.microsoft.com/v1.0/me/sendMail"
+        headers = {
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json"
+        }
 
+        email_msg = {
+            "message": {
+                "subject": "Formular Montaj Completat",
+                "body": {
+                    "contentType": "Text",
+                    "content": "Bună ziua,\n\nAtașez formularul de montaj completat.\n\nCu respect,"
+                },
+                "from": {
+                    "emailAddress": {"address": "formular@adc.ro"}
+                },
+                "toRecipients": [
+                    {"emailAddress": {"address": "baicanalex568@gmail.com"}}
+                ],
+                "attachments": [
+                    {
+                        "@odata.type": "#microsoft.graph.fileAttachment",
+                        "name": os.path.basename(self.last_pdf),
+                        "contentBytes": file_content
+                    }
+                ]
+            },
+            "saveToSentItems": "true"
+        }
 
+        r = requests.post(endpoint, headers=headers, json=email_msg)
+
+        if r.status_code == 202:
+            popup = Popup(
+                title="✅ Succes",
+                content=Label(text="Email trimis cu succes!\nPDF-ul a fost atașat."),
+                size_hint=(0.6, 0.3)
+            )
+        else:
+            popup = Popup(
+                title="❌ Eroare",
+                content=Label(text=f"Eroare la trimiterea emailului:\n{r.status_code}\n{r.text}"),
+                size_hint=(0.7, 0.4)
+            )
+        popup.open()
+         
 
 if __name__ == "__main__":
     FormApp().run()
