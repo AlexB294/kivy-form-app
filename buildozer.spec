@@ -24,7 +24,9 @@ version = 1.0.0
 orientation = portrait
 
 # (list) Application requirements
-requirements = python3,kivy,pyjnius@git+https://github.com/kivy/pyjnius.git
+p4a.local_recipes = recipes
+requirements = python3,kivy,pyjnius
+
 
 
 
