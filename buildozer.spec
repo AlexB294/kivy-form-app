@@ -24,7 +24,7 @@ version = 1.0.0
 orientation = portrait
 
 # (list) Application requirements
-requirements = python3,kivy,pyjnius,reportlab
+requirements = python3==3.10,kivy,pyjnius
 
 # (bool) Indicate if the application should be fullscreen or not
 fullscreen = 0
