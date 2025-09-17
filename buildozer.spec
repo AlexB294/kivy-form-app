@@ -24,7 +24,8 @@ version = 1.0.0
 orientation = portrait
 
 # (list) Application requirements
-requirements = python3,kivy,pyjnius
+requirements = python3,kivy,pyjnius@git+https://github.com/kivy/pyjnius.git
+
 
 
 # (bool) Indicate if the application should be fullscreen or not
