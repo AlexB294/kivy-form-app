@@ -33,13 +33,12 @@ fullscreen = 0
 # API / SDK / NDK versions
 android.api = 33
 android.minapi = 21
-android.sdk = 33
 android.ndk = 25b
 android.ndk_api = 21
 android.build_tools_version = 33.0.2
 
 # (list) Architectures to build for
-android.arch = arm64-v8a, armeabi-v7a
+android.archs = arm64-v8a, armeabi-v7a
 
 # (list) Permissions your app needs
 android.permissions = WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE
@@ -50,7 +49,7 @@ entrypoint = main.py
 # (str) Package format (aab or apk)
 package.format = apk
 
-# Force SDK/NDK paths (so it won't use .buildozer folder)
+# Force SDK/NDK paths
 android.sdk_path = /opt/android-sdk
 android.ndk_path = /opt/android-ndk
 
