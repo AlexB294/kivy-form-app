@@ -60,6 +60,11 @@ jobs:
         pip3 install --upgrade pip
         pip3 install buildozer cython virtualenv
 
+    - name: Clean previous buildozer data 
+      run: |
+        rm -rf .buildozer
+        rm -rf bin
+
     - name: Build APK
       run: |
         buildozer -v android debug
