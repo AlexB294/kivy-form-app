@@ -1,7 +1,5 @@
 [app]
 
-p4a.local_recipes = recipes
-
 # (str) Title of your application
 title = Formular Montaj
 
