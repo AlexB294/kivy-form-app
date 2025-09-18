@@ -1,4 +1,4 @@
-from pythonforandroid.recipe import PyProjectRecipe
+from pythonforandroid.recipe import PythonRecipe as PyProjectRecipe
 from pythonforandroid.toolchain import shprint, current_directory, info
 from pythonforandroid.patching import will_build
 import sh
@@ -42,3 +42,4 @@ class PyjniusRecipe(PyProjectRecipe):
 
 
 recipe = PyjniusRecipe()
+
