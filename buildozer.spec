@@ -22,7 +22,7 @@ version = 1.0.0
 orientation = portrait
 
 # (list) Application requirements
-p4a.local_recipes = recipes
+p4a.local_recipes = ./recipes
 requirements = python3,kivy,pyjnius,setuptools,wheel
 
 
