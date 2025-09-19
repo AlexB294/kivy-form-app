@@ -65,6 +65,10 @@ jobs:
         rm -rf .buildozer
         rm -rf bin
 
+    - name: Ensure setuptools & wheel available
+      run: |
+        pip3 install --upgrade setuptools wheel
+
     - name: Build APK
       run: |
         buildozer -v android debug
