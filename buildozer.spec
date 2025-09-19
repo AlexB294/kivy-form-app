@@ -22,12 +22,8 @@ version = 1.0.0
 orientation = portrait
 
 # (list) Application requirements
-p4a.local_recipes = ./recipes
-requirements = python3,kivy,pyjnius,setuptools,wheel
-
-
-
-
+# All your Python libraries must be listed here.
+requirements = python3,kivy,requests,msal,reportlab,pyjnius,setuptools,wheel
 
 # (bool) Indicate if the application should be fullscreen or not
 fullscreen = 0
@@ -44,10 +40,10 @@ android.build_tools_version = 33.0.2
 android.archs = arm64-v8a, armeabi-v7a
 
 # (list) Permissions your app needs
-android.permissions = WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE
+android.permissions = WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE, INTERNET
 
 # (str) Application entry point
-entrypoint = main.py
+entrypoint = mobile_app.py
 
 # (str) Package format (aab or apk)
 package.format = apk
@@ -58,8 +54,5 @@ android.ndk_path = /opt/android-ndk
 
 [buildozer]
 
-# (int) Log level (0 = quiet, 1 = normal, 2 = verbose, 3 = debug)
+# (int) Log level (0-2)
 log_level = 2
-
-# (bool) Warn if root is detected
-warn_on_root = 1
